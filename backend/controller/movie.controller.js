@@ -1,10 +1,9 @@
 const MovieModel = require("../models/movies.model");
 const mongoose = require("mongoose");
+const { successResponse, failResponse } = require("../utils/response");
 
 module.exports.createMovie = async (req, res) => {
   try {
-    console.log("createMovie - call");
-
     const movie = new MovieModel({
       movie_name: req.body.movie_name,
       image_url: req.body.image_url,
@@ -15,7 +14,7 @@ module.exports.createMovie = async (req, res) => {
 
     const saveResult = await movie.save();
 
-    res.send(saveResult);
+    successResponse({ movie: saveResult }, res);
   } catch (error) {
     console.log("error", error);
   }
@@ -24,7 +23,7 @@ module.exports.createMovie = async (req, res) => {
 module.exports.listMovies = async (req, res) => {
   try {
     const moviesAll = await MovieModel.find({});
-    res.send(moviesAll);
+    successResponse({ movies: moviesAll }, res);
   } catch (error) {
     console.log("error", error);
   }
@@ -39,11 +38,11 @@ module.exports.deleteMovie = async (req, res) => {
   });
 
   if (!movie) {
-    return res.status(422).send({msg:"Invalid movie ID"});
+    return res.status(422).send({ msg: "Invalid movie ID" });
   }
 
   if (movie.is_deleted) {
-    return res.status(422).send({msg:"Movie already deleted"});
+    return res.status(422).send({ msg: "Movie already deleted" });
   }
 
   await MovieModel.findOneAndUpdate(

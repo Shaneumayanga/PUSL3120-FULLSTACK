@@ -47,18 +47,12 @@ function Home() {
   };
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoadingContent, setIsLoadingContent] = useState(true);
-  const [movies, setMovies] = useState(undefined);
 
   useEffect(() => {
     const isLoggedIn =
       localStorage.getItem("access_token") !== null ? true : false;
     setIsLoggedIn(isLoggedIn);
 
-    (async () => {
-      const moviesList = await getData("api/movie/list-movies");
-      console.log("moviesList", moviesList.data);
-    })();
   }, []);
 
   return (
