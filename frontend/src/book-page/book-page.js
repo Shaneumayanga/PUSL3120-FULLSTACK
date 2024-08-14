@@ -10,13 +10,14 @@ import {
   Box,
   Paper,
 } from "@mui/material";
-import { getData } from "../api/auth";
+import { getData, postData } from "../api/auth";
 import { useParams } from "react-router-dom";
 
 function BookPage() {
   const { id } = useParams();
   const [movie, setMovie] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSeats, setSelectedSeats] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -27,10 +28,52 @@ function BookPage() {
     })();
   }, [id]);
 
+  const handleSeatClick = (seatNumber) => {
+    if (selectedSeats.includes(seatNumber)) {
+      setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
+    } else {
+      setSelectedSeats([...selectedSeats, seatNumber]);
+    }
+  };
+
+  const handleBookButtonClick = async (e) => {
+    const seatsRequest = selectedSeats.map((seat) => {
+      return { seat_number: seat };
+    });
+
+    try {
+      console.log("seatsRequest", seatsRequest);
+
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      };
+
+      const bookRequest = await postData(
+        "api/movie/book-seats",
+        {
+          seats: seatsRequest,
+          _id: id,
+        },
+        headers
+      );
+
+      console.log("bookRequest", bookRequest);
+    } catch (error) {
+      console.log("error-handleBookButtonClick", error);
+    }
+  };
+
   return (
     <Box sx={{ padding: 4 }}>
       {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
           <CircularProgress />
         </Box>
       ) : (
@@ -49,13 +92,26 @@ function BookPage() {
                   }}
                 />
                 <CardContent>
-                  <Typography gutterBottom variant="h5" component="div" sx={{ fontWeight: "bold" }}>
+                  <Typography
+                    gutterBottom
+                    variant="h5"
+                    component="div"
+                    sx={{ fontWeight: "bold" }}
+                  >
                     {movie.movie_name}
                   </Typography>
-                  <Typography variant="body1" color="text.primary" sx={{ marginBottom: 1 }}>
+                  <Typography
+                    variant="body1"
+                    color="text.primary"
+                    sx={{ marginBottom: 1 }}
+                  >
                     {movie.venue}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ marginBottom: 1 }}
+                  >
                     {new Date(movie.show_date).toLocaleDateString("en-US", {
                       weekday: "long",
                       year: "numeric",
@@ -65,11 +121,20 @@ function BookPage() {
                       minute: "2-digit",
                     })}
                   </Typography>
-                  <Typography variant="h6" color="text.primary" sx={{ fontWeight: "bold" }}>
+                  <Typography
+                    variant="h6"
+                    color="text.primary"
+                    sx={{ fontWeight: "bold" }}
+                  >
                     {movie.price}
                   </Typography>
                   <Box sx={{ marginTop: 2 }}>
-                    <Button variant="contained" color="primary" fullWidth>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      onClick={handleBookButtonClick}
+                    >
                       Book Now
                     </Button>
                   </Box>
@@ -78,17 +143,41 @@ function BookPage() {
             </Paper>
           </Grid>
 
-          {/* Available Seats Placeholder on the Right */}
           <Grid item xs={12} md={6} lg={7}>
             <Paper elevation={3} sx={{ padding: 2, textAlign: "center" }}>
               <Typography variant="h6" color="text.secondary">
                 Available Seats
               </Typography>
-              {/* Placeholder for seat selection */}
-              <Box sx={{ marginTop: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Seat selection component will go here.
-                </Typography>
+              <Box
+                sx={{
+                  marginTop: 2,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                }}
+              >
+                {movie.seats.map((seat, index) => (
+                  <Button
+                    key={index}
+                    variant="contained"
+                    color={
+                      seat.is_available
+                        ? selectedSeats.includes(seat.seat_number)
+                          ? "secondary"
+                          : "success"
+                        : "error"
+                    }
+                    onClick={() => handleSeatClick(seat.seat_number)}
+                    sx={{
+                      margin: 1,
+                      width: "60px",
+                      height: "60px",
+                      pointerEvents: seat.is_available ? "auto" : "none",
+                    }}
+                  >
+                    {seat.seat_number}
+                  </Button>
+                ))}
               </Box>
             </Paper>
           </Grid>

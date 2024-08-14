@@ -3,6 +3,18 @@ const argon2 = require("argon2");
 
 const { Schema } = mongoose;
 
+const seatSchema = new Schema({
+  seat_number: {
+    type: String,
+    required: true,
+  },
+  is_available: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
+});
+
 const userSchema = new Schema(
   {
     movie_name: {
@@ -29,6 +41,10 @@ const userSchema = new Schema(
       type: Boolean,
       required: true,
       default: false,
+    },
+    seats: {
+      type: [seatSchema],
+      required: true,
     },
   },
   {
