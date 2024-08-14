@@ -38,11 +38,11 @@ module.exports.deleteMovie = async (req, res) => {
   });
 
   if (!movie) {
-    return res.status(422).send({ msg: "Invalid movie ID" });
+    return failResponse("Invalid movie ID", res);
   }
 
   if (movie.is_deleted) {
-    return res.status(422).send({ msg: "Movie already deleted" });
+    return failResponse("Movie already deleted", res);
   }
 
   await MovieModel.findOneAndUpdate(
@@ -58,4 +58,14 @@ module.exports.deleteMovie = async (req, res) => {
   );
 
   return res.send("movie deleted");
+};
+
+module.exports.getMovieById = async (req, res) => {
+  const movie_id = req.params.id;
+
+  const movie = await MovieModel.findOne({
+    _id : new mongoose.Types.ObjectId(movie_id),
+  });
+
+  return successResponse({ movie: movie }, res);
 };

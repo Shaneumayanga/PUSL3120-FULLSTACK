@@ -10,6 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { getData } from "../api/auth";
+import { Link } from "react-router-dom";
 
 function ShowListing() {
   const [isLoadingContent, setIsLoadingContent] = useState(true);
@@ -42,7 +43,7 @@ function ShowListing() {
                   position: "relative",
                   width: "100%",
                   height: 0,
-                  paddingTop: "56.25%", 
+                  paddingTop: "56.25%",
                   overflow: "hidden",
                 }}
               >
@@ -70,13 +71,15 @@ function ShowListing() {
                 <Typography variant="body2" color="text.secondary">
                   {show.price}
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{ marginTop: 2 }}
-                >
-                  Book Now
-                </Button>
+                <Link to={"/book/" + show._id}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ marginTop: 2 }}
+                  >
+                    Book Now
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
