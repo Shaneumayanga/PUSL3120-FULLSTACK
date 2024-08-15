@@ -2,8 +2,10 @@ const UserModel = require("../models/user.model");
 
 const userService = require("../services/user.service");
 const { successResponse, failResponse } = require("../utils/response");
+const mongoose = require("mongoose");
 
 const { generateToken, validateToken } = require("../utils/jwt");
+const UserBookingModel = require("../models/user-booking.model");
 
 module.exports.login = async (req, res) => {
   const email = req.body.email;
@@ -40,4 +42,48 @@ module.exports.register = async (req, res) => {
   await user.save();
 
   return successResponse({ user_name: user.name }, res);
+};
+
+module.exports.profileData = async (req, res) => {
+  try {
+    const user = res.locals.user;
+
+    const user_id = user.user_id;
+
+    const userByID = await UserModel.findOne({
+      _id: new mongoose.Types.ObjectId(user_id),
+    });
+
+    return successResponse({ user: userByID }, res);
+  } catch (error) {
+    return failResponse(`${error.message}`, res);
+  }
+};
+
+module.exports.getUserTickets = async (req, res) => {
+  try {
+    const user = res.locals.user;
+
+    const user_id = user.user_id;
+
+    const tickets = await UserBookingModel.aggregate([
+      {
+        $match: {
+          user_id: new mongoose.Types.ObjectId(user_id),
+        },
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "booked_movies",
+          foreignField: "_id",
+          as: "tickets",
+        },
+      },
+    ]);
+
+    return successResponse({ tickets: tickets }, res);
+  } catch (error) {
+    return failResponse(`${error.message}`, res);
+  }
 };

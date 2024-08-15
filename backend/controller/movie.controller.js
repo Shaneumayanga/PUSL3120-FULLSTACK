@@ -1,6 +1,8 @@
 const MovieModel = require("../models/movies.model");
+const UserBookingModel = require("../models/user-booking.model");
 const mongoose = require("mongoose");
 const { successResponse, failResponse } = require("../utils/response");
+const { sendMessageToWsWithUserID,broadcastToUsers } = require("../websocket/websocket");
 
 module.exports.createMovie = async (req, res) => {
   try {
@@ -81,6 +83,8 @@ module.exports.bookSeats = async (req, res) => {
   try {
     const user = res.locals.user;
 
+    const user_id = user.user_id;
+
     //user object :
     // user {
     //   user_id: '66bb8701daf01f84886be70e',
@@ -105,6 +109,9 @@ module.exports.bookSeats = async (req, res) => {
 
     const updateObject = seats.reduce((acc, seat, index) => {
       acc[`seats.$[elem${index}].is_available`] = false;
+      acc[`seats.$[elem${index}].user_id`] = new mongoose.Types.ObjectId(
+        user_id
+      );
       return acc;
     }, {});
 
@@ -121,53 +128,31 @@ module.exports.bookSeats = async (req, res) => {
       return failResponse("Failed to update seats", res);
     }
 
+    const existingMovieBookingRecord = await UserBookingModel.findOne({
+      user_id: new mongoose.Types.ObjectId(user_id),
+    });
+
+    if (existingMovieBookingRecord) {
+      await UserBookingModel.findOneAndUpdate(
+        { user_id: new mongoose.Types.ObjectId(user_id) },
+        { $push: { related_items: new mongoose.Types.ObjectId(movie_id) } },
+        { new: true, useFindAndModify: false }
+      );
+    } else {
+      const newRecord = new UserBookingModel({
+        user_id: new mongoose.Types.ObjectId(user_id),
+        booked_movies: [new mongoose.Types.ObjectId(movie_id)],
+      });
+
+      await newRecord.save();
+    }
+
+    sendMessageToWsWithUserID(user_id, "show_alert_booking");
+    broadcastToUsers("refetch");
+
     return successResponse("Seats booked successfully", res);
   } catch (error) {
     console.error("Error booking seats:", error);
     return failResponse(`Error: ${error.message}`, res);
   }
 };
-
-
-// module.exports.bookSeats = async (req, res) => {
-//   try {
-//     const user = res.locals.user;
-
-//     //user object :
-//     // user {
-//     //   user_id: '66bb8701daf01f84886be70e',
-//     //   iat: 1723657668,
-//     //   exp: 1723744068
-//     // }
-
-//     const seats = req.body.seats;
-//     const movie_id = req.body._id;
-
-//     const existingMovie = await MovieModel.findOne({
-//       _id: new mongoose.Types.ObjectId(movie_id),
-//     });
-
-//     if (!existingMovie) {
-//       return failResponse("Movie not found", res);
-//     }
-
-//     const movie = await MovieModel.findOneAndUpdate(
-//       { _id: movie_id },
-//       {
-//         $set: {
-//           "seats.$[elem].is_available": false,
-//         },
-//       },
-//       {
-//         arrayFilters: seats.map((seat) => ({
-//           "elem.seat_number": seat.seat_number,
-//         })),
-//         new: true,
-//       }
-//     );
-
-//     return successResponse("success", res);
-//   } catch (error) {
-//     return failResponse(`${error}`, res);
-//   }
-// };

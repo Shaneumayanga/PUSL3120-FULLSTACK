@@ -52,7 +52,6 @@ function Home() {
     const isLoggedIn =
       localStorage.getItem("access_token") !== null ? true : false;
     setIsLoggedIn(isLoggedIn);
-
   }, []);
 
   return (
@@ -109,6 +108,21 @@ function Home() {
               Profile
             </Button>
           </Link>
+          <Button
+            variant="contained"
+            onClick={(e) => {
+              localStorage.removeItem("access_token");
+              window.location.reload();
+            }}
+            sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+              backgroundColor: "red",
+              marginLeft: "2px",
+            }}
+          >
+            Logout
+          </Button>
         </Box>
       </Box>
       <ImageSlider />

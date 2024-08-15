@@ -13,6 +13,10 @@ const seatSchema = new Schema({
     required: true,
     default: true,
   },
+  user_id:{
+    type : Schema.Types.ObjectId,
+    ref: "user",
+  }
 });
 
 const userSchema = new Schema(

@@ -9,6 +9,8 @@ const {
   userloginSchema,
 } = require("../validation/user.joi");
 
+const { validateHeader } = require("../utils/jwt");
+
 const validator = require("../middleware/validator");
 
 router.post(
@@ -22,5 +24,19 @@ router.post(
   validator.validateRequest(userRegisterSchema),
   userController.register
 );
+
+router.get(
+  "/get-profile",
+  validateHeader(),
+  userController.profileData
+);
+
+
+router.get(
+  "/get-user-ticket",
+  validateHeader(),
+  userController.getUserTickets
+);
+
 
 module.exports = router;
