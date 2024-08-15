@@ -8,6 +8,7 @@ import {
   Grid,
   CircularProgress,
   Box,
+  TextField,
 } from "@mui/material";
 import { getData } from "../api/auth";
 import { Link } from "react-router-dom";
@@ -32,8 +33,38 @@ function ShowListing() {
     })();
   }, []);
 
+  const handleOnChangeMovieSearch = async (e) => {
+    console.log("e.target.value:");
+    console.log(e.target.value);
+
+    if(e.target.value === ""){
+      try {
+        const moviesList = await getData("api/movie/list-movies");
+        console.log("moviesList", moviesList.data.movies);
+        setMovies(moviesList.data.movies);
+      } catch (error) {
+        console.log("error-showlisting", error);
+      } 
+    }
+
+    if (e.target.value !== "") {
+      const filteredMovies = movies.filter((movie) =>
+        movie.movie_name.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+      setMovies(filteredMovies);
+    }
+  };
+
   return (
     <Grid container spacing={3} sx={{ marginTop: 4 }}>
+      <TextField
+        label="Search Movies"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        onChange={handleOnChangeMovieSearch}
+        sx={{ margin: "50px" }}
+      />
       {!isLoadingContent ? (
         movies.map((show) => (
           <Grid item xs={12} sm={6} md={4} key={show.id}>
@@ -63,7 +94,7 @@ function ShowListing() {
               </Box>
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
-                  {show.title}
+                  {show.movie_name}
                 </Typography>
                 <Typography variant="body2" color="text.primary">
                   {show.venue}
