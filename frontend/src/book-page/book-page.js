@@ -13,18 +13,39 @@ import {
 import { getData, postData } from "../api/auth";
 import { useParams } from "react-router-dom";
 
+import swal from "sweetalert";
+
 function BookPage() {
   const { id } = useParams();
   const [movie, setMovie] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState([]);
 
+  const fetchData = async () => {
+    const result = await getData(`api/movie/get-movie-by-id/${id}`);
+    const movie = result.data.movie;
+    setMovie(movie);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     (async () => {
-      const result = await getData(`api/movie/get-movie-by-id/${id}`);
-      const movie = result.data.movie;
-      setMovie(movie);
-      setIsLoading(false);
+      const token = localStorage.getItem("access_token");
+      const ws = new WebSocket(`ws://localhost:5000?token=${token}`);
+
+      ws.onopen = () => console.log("websocket opened");
+
+      ws.onmessage = (msg) => {
+        if (msg.data === "show_alert_booking") {
+          swal(`Success!`, `Booking success`, "success");
+        }
+
+        if (msg.data === "refetch") {
+          fetchData();
+        }
+      };
+
+      fetchData();
     })();
   }, [id]);
 

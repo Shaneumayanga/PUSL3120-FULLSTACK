@@ -26,9 +26,9 @@ const router = createBrowserRouter([
     element: <BookPage />,
   },
   {
-    path : "/profile",
-    element:<Profile/>
-  }
+    path: "/profile",
+    element: <Profile />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
