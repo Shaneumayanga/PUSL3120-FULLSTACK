@@ -1,7 +1,7 @@
 module.exports.successResponse = (data, res) => {
   res.status(200).send({
     data: data,
-    status: false,
+    status: true,
   });
 };
 

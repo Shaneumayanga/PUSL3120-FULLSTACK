@@ -24,6 +24,5 @@ app.use(
 app.use("/api/user", require("./router/user.router"));
 app.use("/api/movie", require("./router/movie.router"));
 
+module.exports = app;
 
-
-app.listen(8080, () => console.log(`App running on port : ${PORT}`));
