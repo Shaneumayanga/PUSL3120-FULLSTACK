@@ -9,10 +9,11 @@ import {
   List,
   ListItem,
   ListItemText,
-  Avatar,
+  IconButton,
   Divider,
 } from "@mui/material";
-import { getData } from "../api/auth";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { getData ,postData} from "../api/auth";
 
 function Profile() {
   const [userData, setUserData] = useState(null);
@@ -27,10 +28,7 @@ function Profile() {
         };
 
         const userData = await getData("api/user/get-profile", headers);
-
         const ticketData = await getData("api/user/get-user-ticket", headers);
-
-        console.log("ticketData", ticketData.data.tickets[0].tickets);
 
         setUserData(userData.data.user);
         setTickets(ticketData.data.tickets[0].tickets);
@@ -44,6 +42,22 @@ function Profile() {
 
     fetchUserData();
   }, []);
+
+  const handleDelete = async (ticketId) => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      };
+
+      // await postData("api/user/")
+
+      setTickets((prevTickets) =>
+        prevTickets.filter((ticket) => ticket.id !== ticketId)
+      );
+    } catch (error) {
+      console.error("Failed to delete ticket", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -106,7 +120,18 @@ function Profile() {
             {tickets.length > 0 ? (
               <List>
                 {tickets.map((ticket, index) => (
-                  <ListItem key={index}>
+                  <ListItem
+                    key={index}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDelete(ticket._id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
                     <ListItemText
                       primary={`Movie: ${ticket.movie_name}`}
                       secondary={`Seat: ${ticket.seat} | Date: ${ticket.show_date}`}

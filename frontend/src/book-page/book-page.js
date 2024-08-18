@@ -13,6 +13,8 @@ import {
 import { getData, postData } from "../api/auth";
 import { useParams } from "react-router-dom";
 
+import { useNavigate } from "react-router-dom";
+
 import swal from "sweetalert";
 
 function BookPage() {
@@ -20,6 +22,7 @@ function BookPage() {
   const [movie, setMovie] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const result = await getData(`api/movie/get-movie-by-id/${id}`);
@@ -30,6 +33,15 @@ function BookPage() {
 
   useEffect(() => {
     (async () => {
+      const isLoggedIn =
+        localStorage.getItem("access_token") !== null ? true : false;
+
+      if (!isLoggedIn) {
+        swal("Oops!", `please login in order to continue`, "error");
+        navigate("/login");
+        return;
+      }
+
       const token = localStorage.getItem("access_token");
       const ws = new WebSocket(`ws://localhost:5000?token=${token}`);
 
