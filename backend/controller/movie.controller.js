@@ -46,27 +46,17 @@ module.exports.deleteMovie = async (req, res) => {
     _id: new mongoose.Types.ObjectId(movie_id),
   });
 
+  console.log("movie_id",movie_id);
+
   if (!movie) {
     return failResponse("Invalid movie ID", res);
   }
 
-  if (movie.is_deleted) {
-    return failResponse("Movie already deleted", res);
-  }
+  await MovieModel.deleteOne({
+    _id: new mongoose.Types.ObjectId(movie_id),
+  })
 
-  await MovieModel.findOneAndUpdate(
-    {
-      _id: new mongoose.Types.ObjectId(movie_id),
-    },
-    {
-      is_deleted: true,
-    },
-    {
-      new: true,
-    }
-  );
-
-  return res.send("movie deleted");
+  return successResponse("Movie deleted", res);
 };
 
 module.exports.getMovieById = async (req, res) => {
@@ -156,3 +146,4 @@ module.exports.bookSeats = async (req, res) => {
     return failResponse(`Error: ${error.message}`, res);
   }
 };
+

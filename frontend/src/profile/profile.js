@@ -126,7 +126,7 @@ function Profile() {
                       <IconButton
                         edge="end"
                         aria-label="delete"
-                        onClick={() => handleDelete(ticket._id)}
+                        onClick={() => handleDelete(ticket.id)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -134,7 +134,7 @@ function Profile() {
                   >
                     <ListItemText
                       primary={`Movie: ${ticket.movie_name}`}
-                      secondary={`Seat: ${ticket.seat} | Date: ${ticket.show_date}`}
+                      secondary={`You have booked:${JSON.stringify(ticket.seats.length)} seats | Date: ${ticket.show_date}`}
                       primaryTypographyProps={{ fontWeight: "bold" }}
                     />
                   </ListItem>

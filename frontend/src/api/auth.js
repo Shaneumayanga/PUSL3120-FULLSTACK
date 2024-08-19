@@ -28,3 +28,4 @@ export const postData = async (endpoint, data, headers = {}) => {
   }
 };
 
+//api/movie/delete-movie

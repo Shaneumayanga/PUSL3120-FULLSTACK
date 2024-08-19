@@ -22,6 +22,9 @@ function BookPage() {
   const [movie, setMovie] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [originalPrice, setOriginalPrice] = useState(undefined);
+
+  
   const navigate = useNavigate();
 
   const fetchData = async () => {

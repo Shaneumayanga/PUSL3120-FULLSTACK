@@ -63,7 +63,6 @@ module.exports.profileData = async (req, res) => {
 module.exports.getUserTickets = async (req, res) => {
   try {
     const user = res.locals.user;
-
     const user_id = user.user_id;
 
     const tickets = await UserBookingModel.aggregate([
@@ -78,6 +77,30 @@ module.exports.getUserTickets = async (req, res) => {
           localField: "booked_movies",
           foreignField: "_id",
           as: "tickets",
+        },
+      },
+      {
+        $unwind: "$tickets",
+      },
+      {
+        $addFields: {
+          seats: {
+            $filter: {
+              input: "$tickets.seats",
+              as: "seat",
+              cond: {
+                $eq: ["$$seat.user_id", new mongoose.Types.ObjectId(user_id)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          user_id: { $first: "$user_id" },
+          tickets: { $push: "$tickets" },
+          seats: { $push: "$seats" },
         },
       },
     ]);

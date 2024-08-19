@@ -19,7 +19,7 @@ const seatSchema = new Schema({
   }
 });
 
-const userSchema = new Schema(
+const movieModel = new Schema(
   {
     movie_name: {
       type: String,
@@ -59,4 +59,4 @@ const userSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("movie", userSchema);
+module.exports = mongoose.model("movie", movieModel);

@@ -17,7 +17,7 @@ router.post(
 );
 
 router.get("/list-movies", movieController.listMovies);
-router.delete("/delete-movie", movieController.deleteMovie);
+router.post("/delete-movie", movieController.deleteMovie);
 router.get("/get-movie-by-id/:id", movieController.getMovieById);
 
 router.post(
